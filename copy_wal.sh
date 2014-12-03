@@ -63,18 +63,18 @@ fi
 ################################################################################
 # creating trap to remove lock in case script finish or errors
 ################################################################################
-trap "unlock ${BASENAME?};exit " SIGHUP SIGINT SIGTERM
+trap "unlock ${BASENAME?};exit " SIGHUP SIGINT SIGTERM EXIT
 
 ################################################################################
 # verify if standby is still in recovery mode."
 ################################################################################
-is_pg_in_recovery "${PGPORT?}" "${PGUSER?}" "${PGDATABASE?}"
-if_error "$?" "Standby is not in recovery mode. exiting."
+#is_pg_in_recovery "${PGPORT?}" "${PGUSER?}" "${PGDATABASE?}"
+#if_error "$?" "Standby is not in recovery mode. exiting."
 
 ################################################################################
 # acquire lock first before copying wal.
 ################################################################################
-process_log "acquiring lock."
+process_log "INFO: acquiring lock."
 lock "${BASENAME?}"
 if_error "$?" "one process is already running. not able to acquire lock."
 
@@ -83,52 +83,39 @@ if_error "$?" "one process is already running. not able to acquire lock."
 ################################################################################
 if [[ ! -f ${TRACK_FILE?} ]]
 then
-   process_log "seems first time execution of archiving."
+   process_log "INFO: no lock file found. First time execution of archiving."
    process_log "copying all wal file"
-   for wal in $(ls -1t ${ARCHIVE_LOCATION?}/ )
+   for wal in $(ls -1tr ${ARCHIVE_LOCATION?}/*) 
    do
      process_log "copying wal: ${wal?} on "${REMOTE_HOST?}
      copy_wal_file "${wal?}"          \
                    "${OS_USER?}"      \
-                   "${REMOTE_USER?}"  \
+                   "${REMOTE_DIR?}"  \
                    "${REMOTE_HOST?}"  \
                    "${TRACK_DIR?}"
      if_error "$?" "not able to copy wal file ${wal?}"
-     exit 0
    done
+   exit 0
 fi
 
 ################################################################################
 # check where we left and copy new files.
 ################################################################################
-LAST_IN_PROGRESS=$(cat ${TRACK_FILE?}|grep "progress" |cut -d"." -f1)
-if [[ -z ${LAST_IN_PROGRESS?} ]]
+LAST_COPIED_WAL=$(cat ${TRACK_FILE?})
+
+if [[ ! -z ${LAST_COPIED_WAL?} ]]
 then
-   LAST_COPIED_WAL=$(cat ${TRACK_FILE?}|grep "done" |cut -d"." -f1)
    for wal in "$(list_incremental_wal "${ARCHIVE_LOCATION?}" \
-                                      "${LAST_COPIED_WAL?}")"
+                                      "${ARCHIVE_LOCATION?}/${LAST_COPIED_WAL?}")"
    do
+    [[ -z ${wal?} ]] && exit 0
     process_log "copying wal: ${wal?}"
     copy_wal_file "${wal?}"         \
                   "${OS_USER?}"     \
-                  "${REMOTE_USER?}" \
+                  "${REMOTE_DIR?}" \
                   "${REMOTE_HOST?}" \
                   "${TRACK_DIR?}"
     if_error "$?" "not able to copy wal file ${wal?}"
    done
    exit 0
-else
-   for wal in "${LAST_IN_PROGRESS?} $(list_incremental_wal "${ARCHIVE_LOCATION?}" \
-                                                           "${LAST_IN_PROGRESS?}")"
-   do
-     process_log "copying wal: ${wal?}"
-     copy_wal_file "${wal?}"         \
-                   "${OS_USER?}"     \
-                   "${REMOTE_USER?}" \
-                   "${REMOTE_HOST?}" \
-                   "${TRACK_DIR?}"
-     if_error "$?" "not able to copy wal file ${wal?}"
-   done
-   exit 0
 fi
-
