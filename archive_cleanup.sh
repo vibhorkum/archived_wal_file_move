@@ -69,7 +69,7 @@ INPUT_WAL="$1"
 ################################################################################
 # check we got wal file name as input
 ################################################################################
-[[ ! -z ${INPUT_FILE?} ]]
+[[ ! -z ${INPUT_WAL?} ]]
 if_error "$?" "no input of WAL file."
 
 WAL_NAME="$(echo "${INPUT_WAL?}"|cut -d"." -f1)"
@@ -84,24 +84,16 @@ then
    process_log "tracker file doesn't exists skipping WAL cleanup."
    exit 0
 else
-    LAST_IN_PROGRESS=$(cat ${TRACK_FILE?}|grep "progress" |cut -d"." -f1)
-    LAST_COPIED_WAL=$(cat ${TRACK_FILE?}|grep "done" |cut -d"." -f1)
-    
-    if [[ ! -z ${LAST_IN_PROGRESS?} ]]
+    LAST_COPIED_WAL=$(cat ${TRACK_FILE?} |cut -d"." -f1)
+    if [[ ! -z ${LAST_COPIED_WAL?} ]]
     then
-      is_wal_greater "${WAL_NAME?}" "${LAST_IN_PROGRESS?}" && \
-      CLEANUP_PERMITTED="YES"  ||                             \
-      exit 0
-    elif [[ ! -z ${LAST_COPIED_WAL?} ]]
-    then
-      is_wal_greater "${WAL_NAME?}" "${LAST_IN_PROGRESS?}" && \
+      is_wal_greater "${WAL_NAME?}" "${LAST_COPIED_WAL?}" && \
       CLEANUP_PERMITTED="YES"  ||                             \
       exit 0
     fi      
      
-if
+fi
 
 [[ "${CLEANUP_PERMITTED?}" = "YES" ]] && \
 ${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${WAL_NAME?}"
 exit 0
-
