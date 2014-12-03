@@ -92,7 +92,7 @@ else
       is_wal_greater "${WAL_NAME?}" "${LAST_IN_PROGRESS?}" && \
       CLEANUP_PERMITTED="YES"  ||                             \
       exit 0
-    elif [[ ! -z ${LAS_COPIED_WAL?} ]]
+    elif [[ ! -z ${LAST_COPIED_WAL?} ]]
     then
       is_wal_greater "${WAL_NAME?}" "${LAST_IN_PROGRESS?}" && \
       CLEANUP_PERMITTED="YES"  ||                             \
