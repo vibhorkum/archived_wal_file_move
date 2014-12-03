@@ -101,7 +101,7 @@ else
      
 if
 
-[[ "${CLEANUP_PERMITTED?}"="YES" ]] && \
+[[ "${CLEANUP_PERMITTED?}" = "YES" ]] && \
 ${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${WAL_NAME?}"
 exit 0
 
