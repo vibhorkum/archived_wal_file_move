@@ -41,8 +41,7 @@ set -u
 ################################################################################
 function process_log()
 {
-   echo "PID: $$ [RUNTIME: $(date +'%m-%d-%y %H:%M:%S')] ${BASENAME}:
-$*" >&2
+   echo "PID: $$ [RUNTIME: $(date +'%m-%d-%y %H:%M:%S')] ${BASENAME}: $*" >&2
 }
 
 ################################################################################
@@ -147,6 +146,7 @@ function list_incremental_wal()
    typeset -r NAMED_FILE="$2"
 
    find ${ARCHIVE_LOCATION?} -type f -newer ${NAMED_FILE?}
+   if_error "$?" "failed to find new WAL files."
 }
 
 ################################################################################
@@ -203,6 +203,8 @@ function is_pg_in_recovery()
                                       --username=${PGUSER}             \
                                       --dbname=${PGDATABASE}           \
                                       --command="${F_SQL}")
+    if_error "$?" "failed to get status of recovery."
+
     [[ ${return_value?} = "true" ]] && return 0 
     [[ ${return_value?} = "false" ]] && return 1
     return -1
@@ -248,18 +250,15 @@ function copy_wal_file()
 
     if [[ $(is_local_ip ${REMOTE_HOST?}) -eq 0 ]]
     then     
-      echo "${WAL_NAME?}.progress" >${TRACK_FILE?}  && \
-      rsync -a ${WAL_NAME?} ${REMOTE_DIR?}                      && \ 
-      echo "${WAL_NAME?}.done" > ${TRACK_FILE?}     && \
+      rsync -a ${WAL_NAME?} ${REMOTE_DIR?}/          
+      if_error "$?" "failed to copy wal: ${WAL_NAME?}"
+      echo "$(basename ${WAL_NAME?})" > ${TRACK_FILE?}
       return 0
-      return 1
     else
-      echo "${WAL_NAME?}.progress" >${TRACK_FILE?}          && \
-      rsync -a ${WAL_NAME?} ${OS_USER?}@${REMOTE_HOST?}:${REMOTE_DIR?}  && \ 
-      echo "${WAL_NAME?}.done" > ${TRACK_FILE?}             && \
+      rsync -a ${WAL_NAME?} ${OS_USER?}@${REMOTE_HOST?}:${REMOTE_DIR?}/   
+      if_error "$?" "failed to copy wal: ${WAL_NAME?}"
+      echo "$(basename ${WAL_NAME?})" > ${TRACK_FILE?}
       return 0
-      return 1
     fi
     return 1
 } 
-
