@@ -85,7 +85,7 @@ then
    exit 0
 else
     LAST_IN_PROGRESS=$(cat ${TRACK_FILE?}|grep "progress" |cut -d"." -f1)
-    LAS_COPIED_WAL=$(cat ${TRACK_FILE?}|grep "done" |cut -d"." -f1)
+    LAST_COPIED_WAL=$(cat ${TRACK_FILE?}|grep "done" |cut -d"." -f1)
     
     if [[ ! -z ${LAST_IN_PROGRESS?} ]]
     then
