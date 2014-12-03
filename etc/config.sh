@@ -8,6 +8,9 @@ OS_USER="postgres"                                     # OS user which will be u
 REMOTE_DIR="/tmp/wal"                                  # Remote server directory name
 REMOTE_HOST="/tmp"                                     # Remote host name
 PGHOME="/usr/ppas-9.4"                                 # PPAS/PostgreSQL home directory
+PGPORT="5444"                                          # PPAS database port
+PGUSER="postgres"                                      # PPAS database username
+PGDATABASE="postgres"                                  # PPAS maintenance database
 
 ################################################################################
 # Derived variables

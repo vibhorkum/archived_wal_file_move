@@ -66,6 +66,12 @@ fi
 trap "unlock ${BASENAME?};exit " SIGHUP SIGINT SIGTERM
 
 ################################################################################
+# verify if standby is still in recovery mode."
+################################################################################
+is_pg_in_recovery "${PGPORT?}" "${PGUSER?}" "${PGDATABASE?}"
+if_error "$?" "Standby is not in recovery mode. exiting."
+
+################################################################################
 # acquire lock first before copying wal.
 ################################################################################
 process_log "acquiring lock."
