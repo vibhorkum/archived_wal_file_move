@@ -221,18 +221,18 @@ function is_local_ip()
    
     if [[ "${IP_ADDR?}" = "" ]]
     then
-      return 0
+      echo 0
     elif [[ "${IP_ADDR?}" = "localhost" ]]
     then 
-      return 0
+      echo 0
     fi
     
    check_ip=$(ifconfig -a|grep ${IP_ADDR?}|wc -l)
    if [[ ${check_ip} -gt 0 ]]
    then
-      return 0
+      echo 0
    fi
-   return 1
+   echo 1
 }
       
 ################################################################################
@@ -247,8 +247,8 @@ function copy_wal_file()
     typeset -r REMOTE_HOST="$4"
     typeset -r TRACK_DIR="$5"
     typeset -r TRACK_FILE="${TRACK_DIR?}/wal_tracker"
-    is_local_ip ${REMOTE_HOST?}
-    if [[ $? -eq 0 ]]
+    
+    if [[ $(is_local_ip ${REMOTE_HOST?}) -eq 0 ]]
     then     
       rsync -a ${WAL_NAME?} ${REMOTE_DIR?}/          
       if_error "$?" "failed to copy wal: ${WAL_NAME?}"
