@@ -244,11 +244,11 @@ function copy_wal_file()
     typeset -r WAL_NAME="$1"
     typeset -r OS_USER="$2"
     typeset -r REMOTE_DIR="$3"
-    typeset -r REMOTE_HOST="$4""/"
+    typeset -r REMOTE_HOST="$4"
     typeset -r TRACK_DIR="$5"
     typeset -r TRACK_FILE="${TRACK_DIR?}/wal_tracker"
-
-    if [[ $(is_local_ip ${REMOTE_HOST?}) -eq 0 ]]
+    is_local_ip ${REMOTE_HOST?}
+    if [[ $? -eq 0 ]]
     then     
       rsync -a ${WAL_NAME?} ${REMOTE_DIR?}/          
       if_error "$?" "failed to copy wal: ${WAL_NAME?}"
