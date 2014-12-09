@@ -95,5 +95,5 @@ else
 fi
 
 [[ "${CLEANUP_PERMITTED?}" = "YES" ]] && \
-${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${WAL_NAME?}"
+${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${LAST_COPIED_WAL?}"
 exit 0
