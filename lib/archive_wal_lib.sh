@@ -102,8 +102,8 @@ function is_wal_greater()
   # Else If first time line is greater than Second Timeline
   # Then 
   #     First WAL filename is greater than Second.
-  [[ ${SECND_TMLINE?} -gt ${FRST_TMLINE?} ]] && return 0
-  [[ ${SECND_TMLINE?} -lt ${FRST_TMLINE?} ]] && return 1
+  [[ ${SECND_TMLINE?} -gt ${FRST_TMLINE?} ]] && echo 0
+  [[ ${SECND_TMLINE?} -lt ${FRST_TMLINE?} ]] && echo 1
 
   # Compare Logical Xlog: 
   # If above conditions don't meet 
@@ -114,8 +114,8 @@ function is_wal_greater()
   #   Else if First Logical XLOG is greater than Second
   #   Then
   #      First is greater.
-  [[ ${SECND_LGCL_XLOG?} -gt ${FRST_LGCL_XLOG?} ]] && return 0
-  [[ ${SECND_LGCL_XLOG?} -lt ${FRST_LGCL_XLOG?} ]] && return 1
+  [[ ${SECND_LGCL_XLOG?} -gt ${FRST_LGCL_XLOG?} ]] && echo 0
+  [[ ${SECND_LGCL_XLOG?} -lt ${FRST_LGCL_XLOG?} ]] && echo 1
 
   # Compare Physical Xlog: 
   # If above conditions don't meet 
@@ -126,13 +126,13 @@ function is_wal_greater()
   #   Else if First Physical XLOG is greater than Second
   #   Then
   #      First is greater.
-  [[ ${SECND_PHYSCL_XLOG?} -gt ${FRST_PHYSCL_XLOG?} ]] && return 0
-  [[ ${SECND_PHYSCL_XLOG?} -lt ${FRST_PHYSCL_XLOG?} ]] && return 1
+  [[ ${SECND_PHYSCL_XLOG?} -gt ${FRST_PHYSCL_XLOG?} ]] && echo 0
+  [[ ${SECND_PHYSCL_XLOG?} -lt ${FRST_PHYSCL_XLOG?} ]] && echo 1
 
   # If none of above conditions meet 
   # Then
   #   First and Second WAL is equal.
-  return 0
+  echo 0
 }
 
 ################################################################################
