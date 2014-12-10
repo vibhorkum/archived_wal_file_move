@@ -87,13 +87,15 @@ else
     LAST_COPIED_WAL=$(cat ${TRACK_FILE?} |cut -d"." -f1)
     if [[ ! -z ${LAST_COPIED_WAL?} ]]
     then
-      is_wal_greater "${WAL_NAME?}" "${LAST_COPIED_WAL?}" && \
-      CLEANUP_PERMITTED="YES"  ||                             \
-      exit 0
+      check=$(is_wal_greater "${WAL_NAME?}" "${LAST_COPIED_WAL?}" )
+      if [[ ${check?} -eq 0 ]]
+      then 
+        ${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${WAL_NAME?}"
+        exit 0
+      elif [[ ${check?} -eq 1 ]]
+        ${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${LAST_COPIED_WAL?}"
+        exit 0
+      fi
     fi      
-     
 fi
-
-[[ "${CLEANUP_PERMITTED?}" = "YES" ]] && \
-${PGHOME?}/bin/pg_archivecleanup ${ARCHIVE_LOCATION?} "${LAST_COPIED_WAL?}"
 exit 0
