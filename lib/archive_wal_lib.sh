@@ -59,13 +59,13 @@ function exit_on_error()
 ################################################################################
 function if_error
 {
-  typeset rc="$1"
+  typeset RETURN_CODE="$1"
   shift
-  typeset msg="$*"
+  typeset MESSAGE="$*"
   
-  if [[ ${rc} -ne 0 ]]
+  if [[ ${RETURN_CODE} -ne 0 ]]
   then
-    exit_on_error "$msg; rc=${rc}"
+    exit_on_error "${MESSAGE}; RETURN_CODE=${RETURN_CODE}"
   else
     return 0
   fi
